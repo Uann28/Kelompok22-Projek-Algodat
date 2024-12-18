@@ -160,4 +160,59 @@ class Traversal {
             }
         }
     }
+
+    void startTraversal() {
+        Kota currentKota = startingCity;
+
+        while (currentKota != null) {
+            if (currentKota.headVillain != null && currentKota.headVillain.next != null) {
+                bubbleSortVillainsInCity(currentKota);
+            }
+            currentKota = currentKota.next;
+        }
+
+        currentKota = startingCity;
+        while (currentKota != null) {
+            System.out.println("Moon Knight telah tiba di kota: " + currentKota.nama);
+            push(currentKota.nama);
+
+            moonKnight.bonusFaseBulan(currentKota.faseBulan);
+
+            if (currentKota.headVillain != null) {
+                Villain currentVillain = currentKota.headVillain;
+
+                while (currentVillain != null) {
+                    enqueue(currentVillain);
+                    System.out.println("\nVillain ditemukan: " + currentVillain.nama + " (Kekuatan: " + currentVillain.kekuatan + ")");
+                    battle(currentVillain);
+
+                    if (moonKnight.hp <= 0) {
+                        System.out.println("Moon Knight tidak dapat melanjutkan perjalanan. Game over.");
+                        return;
+                    } 
+                    currentVillain = currentVillain.next;
+                }
+
+                while (front != null) {
+                    dequeue();
+                }
+                System.out.println("\nSemua villain di kota " + currentKota.nama + " telah berhasil dikalahkan!\n");
+
+                currentKota.headVillain = null;
+            } else {
+                System.out.println("Tidak ada villain di kota ini.");
+            }
+            currentKota = currentKota.next;
+        }
+
+        System.out.println("Riwayat Perjalanan:");
+        displayHistory();
+
+        // disini akan dilakukan pengecekan villain pada kota kota yang telah dilewati
+        System.out.println("\nMoon Knight memulai perjalanan mundur untuk memeriksa villain...");
+        while (top != null) {
+            System.out.println("Moon Knight kembali ke kota: " + pop());
+        }
+        System.out.println("\nMoon Knight telah selesai memeriksa semua kota dan tidak ada lagi villain yang tersisa di setiap kota!");
+    }
 }
