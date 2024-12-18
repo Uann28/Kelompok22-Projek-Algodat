@@ -1,8 +1,11 @@
+import java.util.Scanner;
+
 class Traversal {
     MoonKnight moonKnight;
     Kota startingCity;
     nodeHistory top;
     nodeFight front, rear;
+    Scanner scanner;
 
     Traversal(MoonKnight moonKnight, Kota startingCity) {
         this.moonKnight = moonKnight;
@@ -10,6 +13,7 @@ class Traversal {
         this.top = null;
         this.front = null;
         this.rear = null;
+        this.scanner = new Scanner(System.in);
     }
 
     void displayAllCities() {
@@ -63,5 +67,37 @@ class Traversal {
 
     boolean isEmptyFight() {
         return front == null;
+    }
+
+    void push(String data) {
+        nodeHistory newNode = new nodeHistory(data);
+        newNode.next = top;
+        top = newNode;
+    }
+
+    String pop() {
+        if (isEmptyHistory()) {
+            return null;
+        }
+        String kota = top.kota;
+        top = top.next;
+        return kota;
+    }
+
+    boolean isEmptyHistory() {
+        return top == null;
+    }
+
+    void displayHistory() {
+        nodeHistory current = top;
+        while (current != null) {
+            if (current.next == null){
+                System.out.print(current.kota);
+            } else {
+                System.out.print(current.kota + " => ");
+            } 
+            current = current.next;
+        }
+        System.out.println();
     }
 }
