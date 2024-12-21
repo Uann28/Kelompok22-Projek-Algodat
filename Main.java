@@ -15,25 +15,27 @@ public class Main {
         paris.tambahVillain(new Villain("Magneto", 30, 25));
         tokyo.tambahVillain(new Villain("Doctor Doom", 105, 35));
 
-        newYork.next = gotham;
-        gotham.next = cairo;
-        cairo.next = paris;
-        paris.next = tokyo;
+        Traversal traversal = new Traversal(moonKnight);
 
-        Traversal traversal = new Traversal(moonKnight, newYork);
+        traversal.tambahKota(newYork);
+        traversal.tambahKota(gotham);
+        traversal.tambahKota(cairo);
+        traversal.tambahKota(paris);
+        traversal.tambahKota(tokyo);
 
-        String targetVillain = "Joker";
-        Villain foundVillain = traversal.linearSearchVillain(targetVillain);
-        if (foundVillain != null) {
-            System.out.println(targetVillain + " ditemukan dengan kekuatan sebesar: " + foundVillain.kekuatan);
-        } else {
-            System.out.println("Villain " + targetVillain + " tidak ditemukan.");
-        }
+        traversal.tambahEdge(newYork, gotham, 5);
+        traversal.tambahEdge(gotham, cairo, 10);
+        traversal.tambahEdge(gotham, paris, 25);
+        traversal.tambahEdge(cairo, tokyo, 20);
+        traversal.tambahEdge(cairo, paris, 15);
+        traversal.tambahEdge(paris, tokyo, 5);
+
+        traversal.searchAndDisplayVillain();
         System.out.println();
-
-        traversal.displayAllCities();
+        
+        traversal.displayAllCities();   
         System.out.println();
-
+        
         traversal.startTraversal();
     }
 }
