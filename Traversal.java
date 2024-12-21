@@ -7,21 +7,64 @@ class Traversal {
     nodeFight front, rear;
     Scanner scanner;
 
-    Traversal(MoonKnight moonKnight, Kota startingCity) {
+    Traversal(MoonKnight moonKnight) {
         this.moonKnight = moonKnight;
-        this.startingCity = startingCity;
+        this.startingCity = null;
         this.top = null;
         this.front = null;
         this.rear = null;
         this.scanner = new Scanner(System.in);
     }
 
+    void printHeading(String title) {
+        System.out.println("=========================================");
+        System.out.println("          " + title.toUpperCase());
+        System.out.println("=========================================");
+    }
+
+    void tambahKota(Kota kota) {
+        if (startingCity == null) {
+            startingCity = kota;
+        } else {
+            Kota current = startingCity;
+            while (current.next != null) {
+                current = current.next;
+            }
+            current.next = kota;
+        }
+    }
+
+    void tambahEdge(Kota sumber, Kota tujuan, int bobot) {
+        sumber.tambahTetangga(tujuan, bobot);
+        tujuan.tambahTetangga(sumber, bobot);
+    }
+
     void displayAllCities() {
-        System.out.println("Daftar kota di jalur perjalanan:");
+        printHeading("Daftar Kota");
         Kota current = startingCity;
         while (current != null) {
-            System.out.println("- " + current.nama + " (Fase Bulan: " + current.faseBulan + ")");
+            System.out.print(current.nama + " -> ");
+            Tetangga currentTetangga = current.headTetangga;
+            while (currentTetangga != null) {
+                System.out.print(currentTetangga.tujuan.nama + " (" + currentTetangga.bobot + ") ");
+                currentTetangga = currentTetangga.next;
+            }
+            System.out.println();
             current = current.next;
+        }
+        System.out.println("-----------------------------------------");
+    }
+
+    void searchAndDisplayVillain() {
+        printHeading("Pencarian Villain");
+        System.out.print("Masukkan nama villain yang ingin dicari: ");
+        String targetVillain = scanner.nextLine(); // Input dari user untuk cari villain yang diinginkan user
+
+        Villain foundVillain = linearSearchVillain(targetVillain);
+        if (foundVillain != null) {
+            System.out.println("\n!!! " + targetVillain + " ditemukan dengan kekuatan sebesar: " + foundVillain.kekuatan + " !!!");
+        } else {
+            System.out.println("\n✗ Villain " + targetVillain + " tidak ditemukan !");
         }
     }
 
@@ -32,7 +75,6 @@ class Traversal {
             Villain currentVillain = currentCity.headVillain;
             while (currentVillain != null) {
                 if (currentVillain.nama.equals(targetVillain)) {
-                    System.out.println(targetVillain + " ditemukan di kota " + currentCity.nama + ".");
                     return currentVillain;
                 }
                 currentVillain = currentVillain.next;
@@ -94,7 +136,7 @@ class Traversal {
             if (current.next == null){
                 System.out.print(current.kota);
             } else {
-                System.out.print(current.kota + " => ");
+                System.out.print(current.kota + " <= ");
             } 
             current = current.next;
         }
@@ -132,36 +174,45 @@ class Traversal {
     }
     
     void battle(Villain villain) {
+        printHeading("Battle Start!!!");
+
+        System.out.println("      MOON KNIGHT VS " + villain.nama.toUpperCase());
+        System.out.println("------------------------------------");
+
         while (moonKnight.hp > 0 && villain.HP > 0) {
-            System.out.println("\nHP Moon Knight: " + moonKnight.hp);
-            System.out.println("HP " + villain.nama + " : " + villain.HP);
-            System.out.print("Tekan 'f' untuk menyerang atau 'd' untuk bertahan: ");
+            System.out.println("\n[STATUS]");
+            System.out.println("Moon Knight: HP = " + moonKnight.hp);
+            System.out.println(villain.nama + ": HP = " + villain.HP);
+            System.out.println("------------------------------------");
+            System.out.print("Pilihan: [F] Serang | [D] Bertahan: ");
             String input = scanner.nextLine().toLowerCase();
             
             if (input.equals("f")) {
                 villain.HP -= moonKnight.attackPower;
-                System.out.println("Moon Knight menyerang " + villain.nama + " sebesar " + moonKnight.attackPower + " damage!");
+                System.out.println("\n> Moon Knight menyerang " + villain.nama + " sebesar " + moonKnight.attackPower + " damage! <");
                 if (villain.HP > 0) {
                     moonKnight.hp -= villain.kekuatan;
-                    System.out.println(villain.nama + " menyerang balik sebesar " + villain.kekuatan + " damage!");
-                    System.out.println("HP Moon Knight berkurang sebesar " + villain.kekuatan + ". Sisa HP: " + moonKnight.hp);
+                    System.out.println("> " + villain.nama + " menyerang balik sebesar " + villain.kekuatan + " damage! <");
+                    System.out.println("> HP Moon Knight berkurang sebesar " + villain.kekuatan + ". Sisa HP: " + moonKnight.hp + " <");
                 } else {
-                    System.out.println(villain.nama + " telah dikalahkan!");
+                    System.out.println("\n>>> " + villain.nama + " telah dikalahkan! <<<");
                 }
             } else if (input.equals("d")) {
                 System.out.println(villain.nama + " menyerang tapi tidak berpengaruh karena " + moonKnight.nama + " menangkis serangannya!!!");
             } else {
-                System.out.println("Input tidak valid! Silakan tekan 'f' atau 'd' !");
+                System.out.println("\nPilihan tidak valid! Silakan pilih [F] atau [D]");
             }
 
             if (moonKnight.hp <= 0) {
-                System.out.println("\n" + moonKnight.nama + " telah dikalahkan! Game over!!!");
+                System.out.println("\n>>> Moon Knight telah kalah! Pertarungan selesai. <<<");
                 return;
             }
         }
     }
 
     void startTraversal() {
+        printHeading("Perjalanan Dimulai!!!");
+        
         Kota currentKota = startingCity;
 
         while (currentKota != null) {
@@ -172,6 +223,7 @@ class Traversal {
         }
 
         currentKota = startingCity;
+        int totalBobot = 0;
         while (currentKota != null) {
             System.out.println("Moon Knight telah tiba di kota: " + currentKota.nama);
             push(currentKota.nama);
@@ -202,17 +254,54 @@ class Traversal {
             } else {
                 System.out.println("Tidak ada villain di kota ini.");
             }
-            currentKota = currentKota.next;
+            
+            boolean foundUnvisitedCity = false;
+            if (currentKota.headTetangga != null) {
+                Tetangga minEdge = currentKota.headTetangga;
+                Tetangga currentTetangga = currentKota.headTetangga;
+
+                while (currentTetangga != null) {
+                    if (!isCityVisited(currentTetangga.tujuan)) {
+                        if (currentTetangga.bobot < minEdge.bobot || !foundUnvisitedCity) {
+                            minEdge = currentTetangga;
+                            foundUnvisitedCity = true;
+                        }
+                    }
+                    currentTetangga = currentTetangga.next;
+                }
+
+                if (foundUnvisitedCity) {
+                    System.out.println("Moon Knight melanjutkan perjalanan ke kota: " + minEdge.tujuan.nama + " dengan bobot " + minEdge.bobot + " !\n");
+                    currentKota = minEdge.tujuan;
+                    totalBobot += minEdge.bobot;
+                } else {
+                    System.out.println("Semua kota telah dikunjungi dengan total bobot sebanyak: " + totalBobot);
+                    break;
+                }
+            } else {
+                System.out.println("Tidak ada kota tetangga yang tersedia.");
+                break;
+            }
         }
 
-        System.out.println("Riwayat Perjalanan:");
+        System.out.println("\nRiwayat Perjalanan:");
         displayHistory();
 
-        // disini akan dilakukan pengecekan villain pada kota kota yang telah dilewati
         System.out.println("\nMoon Knight memulai perjalanan mundur untuk memeriksa villain...");
         while (top != null) {
             System.out.println("Moon Knight kembali ke kota: " + pop());
         }
         System.out.println("\nMoon Knight telah selesai memeriksa semua kota dan tidak ada lagi villain yang tersisa di setiap kota!");
+    }
+
+    boolean isCityVisited(Kota kota) {
+        nodeHistory current = top;
+        while (current != null) {
+            if (current.kota.equals(kota.nama)) {
+                return true;
+            }
+            current = current.next;
+        }
+        return false;
     }
 }
